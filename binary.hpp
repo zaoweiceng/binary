@@ -139,8 +139,6 @@ Binary& operator<<(Binary&& dest, Binary&& src);
 Binary& operator<<(Binary& dest, Binary& src);
 #endif
 
-#include "config.h"
-#include "node/binary.h"
 #include <iostream>
 #include <string>
 #include <cstddef>
@@ -152,9 +150,6 @@ Binary& operator<<(Binary& dest, Binary& src);
 #include <utility>
 #include <algorithm>
 #include <iterator>
-#include "util/log.h"
-
-using BwtFS::Util::Logger;
 
 Binary::Binary(){
     this->binary_array = std::make_shared<std::vector<std::byte>>(0); 
@@ -183,7 +178,6 @@ Binary::Binary(const std::byte* data, const size_t size){
 }
 Binary::Binary(const Binary& other){
     if (other.binary_array == nullptr){
-        LOG_ERROR << "constructor: Other Binary array is null";
         throw std::runtime_error(std::string("constructor: Other Binary array is null") + __FILE__ + ":" + std::to_string(__LINE__));
     }
     this->binary_array = other.binary_array;
@@ -193,7 +187,6 @@ Binary& Binary::operator=(const Binary& other){
     if (this == &other)
         return *this;
     if (other.binary_array == nullptr){
-        LOG_ERROR << "operator=: Other Binary array is null";
         throw std::runtime_error(std::string("operator=: Other Binary array is null") + __FILE__ + ":" + std::to_string(__LINE__));
     }
     this->binary_array = other.binary_array; 
@@ -207,7 +200,6 @@ Binary::Binary(const size_t size){
 Binary& Binary::operator=(Binary&& other){
     if (this != &other){
         if(other.binary_array == nullptr){
-            LOG_ERROR << "operator=: Other Binary array is null";
             throw std::runtime_error(std::string("operator=: Other Binary array is null") + __FILE__ + ":" + std::to_string(__LINE__));
         }
         this->binary_array = other.binary_array;
@@ -219,7 +211,6 @@ Binary& Binary::operator=(Binary&& other){
 Binary& Binary::operator+=(Binary&& other){
     if (this != &other){
         if(other.binary_array == nullptr){
-            LOG_ERROR << "operator+=: Other Binary array is null";
             throw std::runtime_error(std::string("operator+=: Other Binary array is null") + __FILE__ + ":" + std::to_string(__LINE__));
         }
         this->binary_array->insert(this->binary_array->end(), other.binary_array->begin(), other.binary_array->end());
@@ -231,7 +222,6 @@ Binary& Binary::operator+=(Binary&& other){
 // std::make_move_iterator 是一种高效的方式，可以移动大型对象而不会产生额外的内存拷贝开销。
 Binary &operator<<(Binary &&dest, Binary &&src){
     if (dest.binary_array == nullptr || src.binary_array == nullptr){
-        LOG_ERROR << "operator<<: Binary array is null";
         throw std::runtime_error(std::string("operator<<: Binary array is null") + __FILE__ + ":" + std::to_string(__LINE__));
     }
     dest.binary_array->insert(dest.binary_array->end(), std::make_move_iterator(src.binary_array->begin()), std::make_move_iterator(src.binary_array->end()));
@@ -240,7 +230,6 @@ Binary &operator<<(Binary &&dest, Binary &&src){
 
 Binary &operator<<(Binary &dest, Binary &src){
     if (dest.binary_array == nullptr || src.binary_array == nullptr){
-        LOG_ERROR << "operator<<: Binary array is null";
         throw std::runtime_error(std::string("operator<<: Binary array is null") + __FILE__ + ":" + std::to_string(__LINE__));
     }
     dest.binary_array->insert(dest.binary_array->end(), std::make_move_iterator(src.binary_array->begin()), std::make_move_iterator(src.binary_array->end()));
@@ -249,11 +238,9 @@ Binary &operator<<(Binary &dest, Binary &src){
 
 std::byte& Binary::operator[](const size_t index) const{
     if (this->binary_array == nullptr){
-        LOG_ERROR << "operator[]: Binary array is null";
         throw std::runtime_error(std::string("operator[]: Binary array is null") + __FILE__ + ":" + std::to_string(__LINE__));
     }
     if (index >= this->binary_array->size()){
-        LOG_ERROR << "operator[]: Index out of range";
         throw std::runtime_error(std::string("operator[]: Index out of range") + __FILE__ + ":" + std::to_string(__LINE__));
     }
     return this->binary_array->at(index);
@@ -261,11 +248,9 @@ std::byte& Binary::operator[](const size_t index) const{
 
 Binary Binary::operator+(const Binary& other){
     if (other.binary_array == nullptr){
-        LOG_ERROR << "operator+: Other Binary array is null";
         throw std::runtime_error(std::string("operator+: Other Binary array is null") + __FILE__ + ":" + std::to_string(__LINE__));
     }
     if (this->binary_array == nullptr){
-        LOG_ERROR << "operator+: Binary array is null";
         throw std::runtime_error(std::string("operator+: Binary array is null") + __FILE__ + ":" + std::to_string(__LINE__));
     }
     std::shared_ptr<std::vector<std::byte>> new_array = std::make_shared<std::vector<std::byte>>(this->binary_array->size() + other.binary_array->size());
@@ -302,11 +287,9 @@ std::vector<std::byte> xorVectors(const std::shared_ptr<std::vector<std::byte>>&
 }
 Binary Binary::operator^(const Binary& other){
     if (this->binary_array == nullptr) {
-        LOG_ERROR << "operator^: Binary array is null";
         throw std::runtime_error(std::string("operator^: Binary array is null") + __FILE__ + ":" + std::to_string(__LINE__));
     }
     if (other.binary_array == nullptr) {
-        LOG_ERROR << "operator^: Other Binary array is null";
         throw std::runtime_error(std::string("operator^: Other Binary array is null") + __FILE__ + ":" + std::to_string(__LINE__));
     }
     return xorVectors(this->binary_array, other.binary_array);
@@ -314,7 +297,6 @@ Binary Binary::operator^(const Binary& other){
 
 std::vector<std::byte> Binary::read(const size_t index, const size_t size) const{
     if (this->binary_array == nullptr){
-        LOG_ERROR << "Binary::read: Binary array is null";
         throw std::runtime_error(std::string("Binary::read: Binary array is null") + __FILE__ + ":" + std::to_string(__LINE__));
     }
     size_t read_size = size;
@@ -327,7 +309,6 @@ std::vector<std::byte> Binary::read(const size_t index, const size_t size) const
 
 std::vector<std::byte> Binary::read(const size_t index) const{
     if (this->binary_array == nullptr){
-        LOG_ERROR << "Binary::read: Binary array is null";
         throw std::runtime_error(std::string("Binary::read: Binary array is null") + __FILE__ + ":" + std::to_string(__LINE__));
     }
     return read(index, this->binary_array->size() - index);
@@ -335,7 +316,6 @@ std::vector<std::byte> Binary::read(const size_t index) const{
 
 std::vector<std::byte> Binary::read() const{
     if (this->binary_array == nullptr){
-        LOG_ERROR << "Binary::read: Binary array is null";
         throw std::runtime_error(std::string("Binary::read: Binary array is null") + __FILE__ + ":" + std::to_string(__LINE__));
     }
     return read(0, this->binary_array->size());
@@ -343,11 +323,9 @@ std::vector<std::byte> Binary::read() const{
 
 std::byte Binary::get(const size_t index) const{
     if (this->binary_array == nullptr){
-        LOG_ERROR << "Binary::get: Binary array is null";
         throw std::runtime_error(std::string("Binary::get: Binary array is null") + __FILE__ + ":" + std::to_string(__LINE__));
     }
     if (index >= this->binary_array->size()){
-        LOG_ERROR << "Binary::get: Index out of range";
         throw std::runtime_error(std::string("Binary::get: Index out of range") + __FILE__ + ":" + std::to_string(__LINE__));
     }
     return this->binary_array->at(index);
@@ -355,15 +333,12 @@ std::byte Binary::get(const size_t index) const{
 
 void Binary::set(const size_t index, const std::byte data){
     if (this->binary_array == nullptr){
-        LOG_ERROR << "Binary::set: Binary array is null";
         throw std::runtime_error(std::string("Binary::set: Binary array is null") + __FILE__ + ":" + std::to_string(__LINE__));
     }
     if (index >= this->binary_array->size()){
-        LOG_ERROR << "Binary::set: Index out of range";
         throw std::runtime_error(std::string("Binary::set: Index out of range") + __FILE__ + ":" + std::to_string(__LINE__));
     }
     if (index < 0){
-        LOG_ERROR << "Binary::set: Index out of range";
         throw std::runtime_error(std::string("Binary::set: Index out of range") + __FILE__ + ":" + std::to_string(__LINE__));
     }
     this->binary_array->at(index) = data;
@@ -371,7 +346,6 @@ void Binary::set(const size_t index, const std::byte data){
 
 bool Binary::write(const size_t index, const size_t size, const std::byte* data){
     if (this->binary_array == nullptr){
-        LOG_ERROR << "Binary::write: Binary array is null";
         throw std::runtime_error(std::string("Binary::write: Binary array is null") + __FILE__ + ":" + std::to_string(__LINE__));
     }
     if (index + size > this->binary_array->size() || index < 0 || size < 0)
@@ -386,7 +360,6 @@ bool Binary::write(const size_t index, const size_t size, std::vector<std::byte>
 
 bool Binary::write(const size_t index, const std::vector<std::byte>& data){
     if (this->binary_array == nullptr){
-        LOG_ERROR << "Binary::write: Binary array is null";
         throw std::runtime_error(std::string("Binary::write: Binary array is null") + __FILE__ + ":" + std::to_string(__LINE__));
     }
     return write(index, data.size(), data.data());
@@ -394,7 +367,6 @@ bool Binary::write(const size_t index, const std::vector<std::byte>& data){
 
 bool Binary::write(const std::byte* data, const size_t size){
     if (this->binary_array == nullptr){
-        LOG_ERROR << "Binary::write: Binary array is null";
         throw std::runtime_error(std::string("Binary::write: Binary array is null") + __FILE__ + ":" + std::to_string(__LINE__));
     }
     return write(0, size, data);
@@ -402,7 +374,6 @@ bool Binary::write(const std::byte* data, const size_t size){
 
 bool Binary::write(const std::vector<std::byte>& data){
     if (this->binary_array == nullptr){
-        LOG_ERROR << "Binary::write: Binary array is null";
         throw std::runtime_error(std::string("Binary::write: Binary array is null") + __FILE__ + ":" + std::to_string(__LINE__));
     }
     return write(0, data.size(), data.data());
@@ -410,7 +381,6 @@ bool Binary::write(const std::vector<std::byte>& data){
 
 Binary& Binary::append(const size_t size, const std::byte* data){
     if (this->binary_array == nullptr){
-        LOG_ERROR << "Binary::append: Binary array is null";
         throw std::runtime_error(std::string("Binary::append: Binary array is null") + __FILE__ + ":" + std::to_string(__LINE__));
     }
     this->binary_array->insert(this->binary_array->end(), data, data + size);
@@ -419,7 +389,6 @@ Binary& Binary::append(const size_t size, const std::byte* data){
 
 Binary& Binary::append(const std::vector<std::byte>& data){
     if (this->binary_array == nullptr){
-        LOG_ERROR << "Binary::append: Binary array is null";
         throw std::runtime_error(std::string("Binary::append: Binary array is null") + __FILE__ + ":" + std::to_string(__LINE__));
     }
     this->binary_array->insert(this->binary_array->end(), data.begin(), data.end());
@@ -427,16 +396,12 @@ Binary& Binary::append(const std::vector<std::byte>& data){
 }
 
 Binary& Binary::clear(){
-    if (this->binary_array == nullptr){
-        LOG_WARNING << "Binary::clear: Binary array is null";
-    }
     this->binary_array->clear();
     return *this;
 }
 
 size_t Binary::size() const{
     if (this->binary_array == nullptr){
-        LOG_WARNING << "Binary::size: Binary array is null";
         return 0;
     }
     return this->binary_array->size();
@@ -497,7 +462,6 @@ const std::vector<std::byte> Binary::STRING_TO_BINARY(const std::string& data){
 
 std::string Binary::to_hex_string(const size_t index, const size_t size) const{
     if (this->binary_array == nullptr){
-        LOG_ERROR << "Binary::to_string: Binary array is null";
         throw std::runtime_error(std::string("Binary::to_string: Binary array is null") + __FILE__ + ":" + std::to_string(__LINE__));
     }
     if (index + size > this->binary_array->size())
@@ -509,7 +473,6 @@ std::string Binary::to_hex_string(const size_t index, const size_t size) const{
 
 std::string Binary::to_hex_string() const{
     if (this->binary_array == nullptr){
-        LOG_ERROR << "Binary::to_string: Binary array is null";
         throw std::runtime_error(std::string("Binary::to_string: Binary array is null") + __FILE__ + ":" + std::to_string(__LINE__));
     }
     if (this->binary_array->size() == 0)
@@ -535,7 +498,6 @@ const std::vector<std::byte> Binary::ASCll_TO_BINARY(const std::string& data){
 
 std::string Binary::to_ascll_string(const size_t index, const size_t size) const{
     if (this->binary_array == nullptr){
-        LOG_ERROR << "Binary::to_ascll_string: Binary array is null";
         throw std::runtime_error(std::string("Binary::to_ascll_string: Binary array is null")  + __FILE__ + ":" + std::to_string(__LINE__));
     }
     if (index + size > this->binary_array->size())
@@ -545,7 +507,6 @@ std::string Binary::to_ascll_string(const size_t index, const size_t size) const
 
 std::string Binary::to_ascll_string() const{
     if (this->binary_array == nullptr){
-        LOG_ERROR << "Binary::to_ascll_string: Binary array is null";
         throw std::runtime_error(std::string("Binary::to_ascll_string: Binary array is null") + __FILE__ + ":" + std::to_string(__LINE__));
     }
     if (this->binary_array->size() == 0)
@@ -603,7 +564,6 @@ std::vector<std::byte> base64_to_bytes(const std::string& input) {
 
     const size_t len = input.size();
     if (len % 4 != 0) {
-        LOG_ERROR << "base64_to_bytes: Base64 string length must be a multiple of 4";
         throw std::invalid_argument(std::string("base64_to_bytes: Base64 string length must be a multiple of 4") + __FILE__ + ":" + std::to_string(__LINE__));
     }
 
@@ -625,7 +585,6 @@ std::vector<std::byte> base64_to_bytes(const std::string& input) {
         if (input[i+2] != '=') {
             sextet_c = decode_table[static_cast<unsigned char>(input[i+2])];
             if (sextet_c == -1){
-                LOG_ERROR << "base64_to_bytes: Invalid character in Base64 string";
                 throw std::invalid_argument(std::string("base64_to_bytes: Invalid character in Base64 string") + __FILE__ + ":" + std::to_string(__LINE__));
             }
         }
@@ -634,13 +593,11 @@ std::vector<std::byte> base64_to_bytes(const std::string& input) {
         if (input[i+3] != '=') {
             sextet_d = decode_table[static_cast<unsigned char>(input[i+3])];
             if (sextet_d == -1){
-                LOG_ERROR << "base64_to_bytes: Invalid character in Base64 string";
                 throw std::invalid_argument(std::string("base64_to_bytes: Invalid character in Base64 string") + __FILE__ + ":" + std::to_string(__LINE__));
             }
         }
 
         if (sextet_a == -1 || sextet_b == -1) {
-            LOG_ERROR << "base64_to_bytes: Invalid character in Base64 string";
             throw std::invalid_argument(std::string("base64_to_bytes: Invalid character in Base64 string") + __FILE__ + ":" + std::to_string(__LINE__));
         }
 
@@ -659,7 +616,6 @@ std::vector<std::byte> base64_to_bytes(const std::string& input) {
         } else {
             // 第三个字符是=，第四个必须也是=
             if (input[i+3] != '=') {
-                LOG_ERROR << "base64_to_bytes: Invalid padding with '='";
                 throw std::invalid_argument(std::string("base64_to_bytes: Invalid padding with '='") + __FILE__ + ":" + std::to_string(__LINE__));
             }
         }
@@ -679,7 +635,6 @@ const std::vector<std::byte> Binary::BASE64_TO_BINARY(const std::string& data){
 
 std::string Binary::to_base64_string() const{
     if (this->binary_array == nullptr){
-        LOG_ERROR << "Binary::to_base64_string: Binary array is null";
         throw std::runtime_error(std::string("Binary::to_base64_string: Binary array is null") + __FILE__ + ":" + std::to_string(__LINE__));
     }
     if (this->binary_array->size() == 0)
@@ -691,7 +646,6 @@ const Binary Binary::contact(std::initializer_list<Binary>&& args){
     Binary binary(0);
     for (auto arg : args){
         if (arg.binary_array == nullptr){
-            LOG_ERROR << "Binary::contact: Binary array is null";
             throw std::runtime_error(std::string("Binary::contact: Binary array is null") + __FILE__ + ":" + std::to_string(__LINE__));
         }
         binary += std::move(arg);
@@ -701,7 +655,6 @@ const Binary Binary::contact(std::initializer_list<Binary>&& args){
 
 bool Binary::empty() const{
     if (this->binary_array == nullptr){
-        LOG_ERROR << "Binary::empty: Binary array is null";
         throw std::runtime_error(std::string("Binary::empty: Binary array is null") + __FILE__ + ":" + std::to_string(__LINE__));
     }
     return this->binary_array->empty();
