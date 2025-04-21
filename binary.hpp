@@ -38,7 +38,7 @@ class Binary{
         // 赋值运算符，参数为Binary类型
         Binary& operator=(const Binary& other);
         // 移动构造函数，参数为Binary类型
-        Binary(Binary&& other) = default;
+        Binary(Binary&& other);
         // 移动赋值运算符，参数为Binary类型
         Binary& operator=(Binary&& other) ;
         Binary& operator+=(Binary&& other);
@@ -202,10 +202,18 @@ Binary& Binary::operator=(Binary&& other){
         if(other.binary_array == nullptr){
             throw std::runtime_error(std::string("operator=: Other Binary array is null") + __FILE__ + ":" + std::to_string(__LINE__));
         }
-        this->binary_array = other.binary_array;
+        this->binary_array = std::move(other.binary_array);
         other.binary_array = nullptr;
     }
     return *this;
+}
+
+Binary::Binary(Binary&& other){
+    if (other.binary_array == nullptr){
+        throw std::runtime_error(std::string("constructor: Other Binary array is null") + __FILE__ + ":" + std::to_string(__LINE__));
+    }
+    this->binary_array = std::move(other.binary_array);
+    other.binary_array = nullptr;
 }
 
 Binary& Binary::operator+=(Binary&& other){
